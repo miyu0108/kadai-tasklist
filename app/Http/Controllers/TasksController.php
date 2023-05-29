@@ -20,7 +20,6 @@ class TasksController extends Controller
             // 認証済みユーザを取得
             $user = \Auth::user();
             // ユーザの投稿の一覧を作成日時の降順で取得
-            // （後のChapterで他ユーザの投稿も取得するように変更しますが、現時点ではこのユーザの投稿のみ取得します）
             $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
             $data = [
                 'user' => $user,
@@ -82,10 +81,16 @@ class TasksController extends Controller
         // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
 
-        // メッセージ詳細ビューでそれを表示
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        // 認証済みユーザ（閲覧者）がその投稿の所有者である場合はメッセージを表示
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+        }
+        
+        // トップページへリダイレクトさせる
+        return redirect('/')
+            ->with('Show Failed. You are not authorized to see.');
     }
 
     /**

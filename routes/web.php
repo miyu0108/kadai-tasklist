@@ -21,6 +21,7 @@ Route::get('/dashboard', [TasksController::class, 'index'])->middleware(['auth']
 
 require __DIR__.'/auth.php';
 
+// ユーザーがログインしているかどうかの判断
 Route::group(['middleware' => ['auth']], function () {
     Route::resource('tasks', TasksController::class);
 });
